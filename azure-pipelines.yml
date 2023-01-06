@@ -1,0 +1,35 @@
+trigger:
+  - master
+  - develop
+
+resources:
+  - repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  ${{ if eq(variables['Build.SourceBranchName'], 'master') }}: 
+    RAILWAY_TOKEN: b17a3f68-1f46-4b30-aa33-215b13a1cabf
+  ${{ if eq(variables['Build.SourceBranchName'], 'develop') }}: 
+    RAILWAY_TOKEN: 3510e0bb-75d2-4dab-8210-e3b5776ae791
+
+stages:
+- stage: Build
+  displayName: Build Image
+  jobs:  
+  - job: Build
+    displayName: Build & Deploy
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: PowerShell@2
+      continueOnError: false
+      displayName: Railway Deploy
+      inputs:
+        targetType: 'inline'
+        script: |
+          if ($env:RAILWAY_TOKEN) {
+            curl -fsSL https://railway.app/install.sh | sh
+            railway up
+          } else {
+            Write-Host "sin despliegue para la rama actual"
+          }
