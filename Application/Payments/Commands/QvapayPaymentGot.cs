@@ -1,20 +1,20 @@
 ﻿using Application.Balances.Jobs;
 
-using Coravel.Queuing.Interfaces;
 using Domain.Abstract.DAL;
 using Domain.Abstract.Services;
 using Domain.SharedKernel;
+
 using FluentResults;
+
 using FluentValidation;
+
+using MassTransit;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Payments.Commands;
 
@@ -24,7 +24,7 @@ public class QvapayPaymentGot
 
     public class Validation : AbstractValidator<Command>
     {
-        public Validation(IReadDbContext dbContext)
+        public Validation()
         {
             RuleFor(t => t.QvapayId)
                 .NotEmpty()
@@ -44,18 +44,18 @@ public class QvapayPaymentGot
         private readonly ILogger<QvapayPaymentGot> _logger;
         private readonly IWriteDbContext _dbContext;
         private readonly IQvapayClient _qvapay;
-        private readonly IQueue _queue;
+        private readonly IBus _bus;
 
         public CommandHandler(
             ILogger<QvapayPaymentGot> logger,
             IWriteDbContext dbContext,
             IQvapayClient qvapay,
-            IQueue queue)
+            IBus bus)
         {
             _logger = logger;
             _dbContext = dbContext;
             _qvapay = qvapay;
-            _queue = queue;
+            _bus = bus;
         }
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
@@ -98,7 +98,7 @@ public class QvapayPaymentGot
             }
 
             payment.ExecutedAmount = invoice.Amount;
-            
+
             _dbContext.Payment.Update(payment);
             await _dbContext.SaveChangesAsync();
 
@@ -109,7 +109,7 @@ public class QvapayPaymentGot
                 payment.ExternalIdentification, payment.ExecutedAmount);
 
             // mándalo a actualizar el balance
-            _queue.QueueInvocableWithPayload<UpdateCustomer, UpdateCustomer.Data>(new UpdateCustomer.Data
+            await _bus.Publish(new UpdateCustomer.Data
             {
                 UserId = payment.UserId
             });

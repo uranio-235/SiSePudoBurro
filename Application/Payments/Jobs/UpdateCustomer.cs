@@ -1,10 +1,10 @@
-﻿using Coravel.Invocable;
-
-using Domain.Abstract.DAL;
+﻿using Domain.Abstract.DAL;
 using Domain.SharedKernel;
 
+using MassTransit;
+
 namespace Application.Balances.Jobs;
-public class UpdateCustomer : IInvocable, IInvocableWithPayload<UpdateCustomer.Data>
+public class UpdateCustomer : IConsumer<UpdateCustomer.Data>
 {
     private readonly IWriteDbContext _dbContext;
     public UpdateCustomer(IWriteDbContext dbContext)
@@ -18,14 +18,12 @@ public class UpdateCustomer : IInvocable, IInvocableWithPayload<UpdateCustomer.D
         public string? Username { get; set; }
     }
 
-    public Data Payload { get; set; }
-
-    public async Task Invoke()
+    public async Task Consume(ConsumeContext<Data> context)
     {
         using var transaction = await _dbContext.BeginTransactionAsync();
 
         var customer = _dbContext.Customer
-            .SingleOrDefault(c => c.UserId == Payload.UserId);
+            .SingleOrDefault(c => c.UserId == context.Message.UserId);
 
         if (customer is null)
             return;
@@ -33,10 +31,10 @@ public class UpdateCustomer : IInvocable, IInvocableWithPayload<UpdateCustomer.D
         var view = customer.View ?? new();
 
         // si cambió el username lo cambio aquí
-        view.Username = Payload.Username ?? view.Username;
+        view.Username = context.Message.Username ?? view.Username;
 
         var query = _dbContext.Payment
-            .Where(p => p.UserId == Payload.UserId);
+            .Where(p => p.UserId == context.Message.UserId);
 
         view.OutstandingBalance = query
             .Where(p => p.Status != PaymentStatus.Completed)

@@ -1,5 +1,6 @@
 ﻿
 using Application.Balances.Queries;
+using Application.Payments.Commands;
 
 using MediatR;
 
@@ -21,8 +22,13 @@ public class BalanceController : Controller
     }
 
     [HttpGet("{UserId}")]
-    public async Task<IActionResult> GetUserBalace(Guid UserId)
-    {
-        return Ok(await _mediator.Send(new GetUserBalance.Query(UserId)));
-    }
+    public async Task<IActionResult> GetByUserId(Guid UserId)
+        => Ok(await _mediator.Send(new GetUserBalance.Query(UserId)));
+
+    [HttpPost("{UserId}")]
+    public async Task<IActionResult> RequestPaymentByUserId(
+        [FromBody] RequestPayment.Command command,
+        Guid UserId) 
+        => Ok(await _mediator.Send(command with { UserId = UserId }));
+
 }

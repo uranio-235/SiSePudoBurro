@@ -10,8 +10,6 @@ public class Payment : BaseEntity
 
     public PaymentStatus Status { get; set; }
 
-    public LocalCurrency Currency { get; set; }
-
     public decimal RequestedAmount { get; set; }
     public decimal ExecutedAmount { get; set; } = 0;
 

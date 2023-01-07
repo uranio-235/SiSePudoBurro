@@ -2,8 +2,6 @@ using Application.Behaviors;
 
 using AspNetCore.Authentication.ApiKey;
 
-using Coravel;
-
 using Domain.Abstract.Services;
 using Domain.Models;
 
@@ -11,6 +9,8 @@ using FluentValidation;
 
 using Infrastructure.DAL;
 using Infrastructure.Impl.Services;
+
+using MassTransit;
 
 using MediatR;
 
@@ -58,8 +58,12 @@ public class Program
         // Add services to the container.
         builder.Services.AddAuthorization();
 
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        builder.Services.AddSwaggerGen();
+        // volvieron a joder el swagger
+        // esta pinga hay que ponerla para pder poner Command y Query como [FromBody] repetido
+        builder.Services.AddSwaggerGen(o =>
+        {
+            o.CustomSchemaIds(s => s!.FullName!.Replace("+", "."));
+        });
 
         // Microsoft.AspNetCore.Mvc.NewtonsoftJson
         builder.Services
@@ -78,9 +82,21 @@ public class Program
             .AddHealthChecks()
             .AddCheck<IQvapayClient>("qvapay health check");
 
-        // coravel y sus amigos
-        builder.Services.AddCache();
-        builder.Services.AddQueue();
+        builder.Services.AddMassTransit(x =>
+        {
+            AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => typeof(IConsumer).IsAssignableFrom(p) && p.IsClass && !p.FullName.StartsWith("MassTransit."))
+                .ToList()
+                .ForEach(c => x.AddConsumer(c));
+
+            x.SetKebabCaseEndpointNameFormatter();
+
+            x.UsingInMemory((context, cfg) =>
+            {
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         // añade la capa de datos
         builder.Services.AddDataLayer();
@@ -142,6 +158,7 @@ public class Program
         app.UseAuthorization();
         app.UseEndpoints(endpoints => endpoints.MapHealthChecks("/health"));
         app.UseEndpoints(endpoints => endpoints.MapControllers());
+
 
 
         app.Run();

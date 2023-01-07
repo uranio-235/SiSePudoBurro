@@ -1,3 +1,5 @@
+El apikey es: ok
+
 $env:DATABASE_URL="postgres://uvufuefue:enetwetwetweufuemufemosas@peanut.db.aws.com/jonestxt"
 Get-DbContext
 

@@ -62,6 +62,16 @@ public class ExceptionFilter : ExceptionFilterAttribute
         context.HttpContext.Response.StatusCode =
             (int)(error?.ErrorCode ?? HttpStatusCode.InternalServerError);
 
+        if (error is null)
+        {
+            exceptions?
+                .Select((e,n) => new {e.Message, Index=n })
+                .ToList()
+                .ForEach(e => _logger.LogError("{Index} {Message}", e.Message, e.Index));
+
+            _logger.LogCritical("Palo fulísima:\n{Exception}", context.Exception);
+        }
+
         context.Result = new ObjectResult(Result.Fail(error?.ErrorMessage ?? "(unkown error)"));
 
         base.OnException(context);
