@@ -10,7 +10,7 @@ namespace Application.Balances.Queries;
 
 public class GetUserBalance
 {
-    public record Query(Guid UserId) : IRequest<Result<List<Data>>>;
+    public record Query(Guid UserId) : IRequest<Result<Data>>;
 
     public class Validation : AbstractValidator<Query>
     {
@@ -21,7 +21,7 @@ public class GetUserBalance
         }
     }
 
-    public class QueryHandler : IRequestHandler<Query, Result<List<Data>>>
+    public class QueryHandler : IRequestHandler<Query, Result<Data>>
     {
         private readonly IReadDbContext _dbContext;
 
@@ -30,14 +30,15 @@ public class GetUserBalance
             _dbContext = dbContext;
         }
 
-        public Task<Result<List<Data>>> Handle(Query request, CancellationToken cancellationToken)
+        public Task<Result<Data>> Handle(Query request, CancellationToken cancellationToken)
             => Task.FromResult(_dbContext.Customer
+                .Where(c => c.UserId == request.UserId)
                 .Select(c => new Data
                 {
                     AvailableBalance = c.View.AvailableBalance,
                     OutstandingBalance = c.View.OutstandingBalance,
                 })
-            .ToList()
+                .Single()
             .ToResult());
 
     }
