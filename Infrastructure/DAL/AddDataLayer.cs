@@ -2,6 +2,7 @@
 using Domain.Entitities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 using System.Text;
@@ -13,7 +14,8 @@ public static class AddDataLayerExtension
     /// Añade la capa de datos.
     /// </summary>
     public static IServiceCollection AddDataLayer(
-            this IServiceCollection services)
+            this IServiceCollection services,
+            InMemoryDatabaseRoot database)
     {
         // Plan A: Jipie linuxero con postgresql
         // se asume que si DATABASE_URL está seteada
@@ -42,18 +44,9 @@ public static class AddDataLayerExtension
 
             services.AddDbContext<ReadDbContext>(opt =>
                 opt.UseNpgsql(connectionString.ToString()), ServiceLifetime.Scoped);
-
-            services.AddDbContext<WriteDbContext>(opt =>
-                opt.UseNpgsql(
-                    connectionString.ToString(),
-                    b => b.MigrationsAssembly("View")),
-                    ServiceLifetime.Scoped);
-
-            services.AddDbContext<ReadDbContext>(opt =>
-                opt.UseNpgsql(connectionString.ToString()), ServiceLifetime.Scoped);
-
         }
-        else // Plan B: Usuario de windows con visualstudio decente
+        // Plan B: Usuario de windows con visualstudio decente
+        else if (Environment.OSVersion is { Platform: PlatformID.Win32NT } )
         {
             var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Demo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
@@ -64,16 +57,16 @@ public static class AddDataLayerExtension
                     ServiceLifetime.Scoped);
 
             services.AddDbContext<ReadDbContext>(opt =>
-                opt.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+                opt.UseSqlServer(connectionString),
+                 ServiceLifetime.Scoped);
+        }
+        else // Plan Z: Bueno, debes tener memoria ram por lo menos... No?
+        {
+            services.AddDbContext<ReadDbContext>(opt =>
+                opt.UseInMemoryDatabase("demo", database), ServiceLifetime.Transient);
 
             services.AddDbContext<WriteDbContext>(opt =>
-                opt.UseSqlServer(
-                    connectionString,
-                    b => b.MigrationsAssembly("View")),
-                    ServiceLifetime.Scoped);
-
-            services.AddDbContext<ReadDbContext>(opt =>
-                opt.UseSqlServer(connectionString), ServiceLifetime.Scoped);
+                opt.UseInMemoryDatabase("demo", database), ServiceLifetime.Transient);
         }
 
 

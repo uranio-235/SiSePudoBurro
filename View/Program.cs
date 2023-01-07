@@ -13,7 +13,7 @@ using Infrastructure.Impl.Services;
 using MassTransit;
 
 using MediatR;
-
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.OpenApi.Models;
 
 using Polly;
@@ -29,6 +29,7 @@ namespace View;
 
 public class Program
 {
+    public static readonly InMemoryDatabaseRoot InMemoryDatabaseRoot = new InMemoryDatabaseRoot();
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -81,7 +82,7 @@ public class Program
         // monta que te queda
         builder.Services.AddMassTransit(x =>
         {
-            // la brujería que carga todo los consumer
+            // la brujerï¿½a que carga todo los consumer
             AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(p => typeof(IConsumer).IsAssignableFrom(p) && p.IsClass && !p.FullName.StartsWith("MassTransit."))
@@ -96,16 +97,16 @@ public class Program
             });
         });
 
-        // añade la capa de datos
-        builder.Services.AddDataLayer();
+        // aï¿½ade la capa de datos
+        builder.Services.AddDataLayer(InMemoryDatabaseRoot);
 
-        // el swagger muy de pinga con autenticación x-api-key sata
+        // el swagger muy de pinga con autenticaciï¿½n x-api-key sata
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment API", Version = "v1" });
             c.AddSecurityDefinition("X-API-KEY", new OpenApiSecurityScheme()
             {
-                Description = "El token de autenticación.",
+                Description = "El token de autenticaciï¿½n.",
                 In = ParameterLocation.Header,
                 Name = "X-API-KEY",
                 Type = SecuritySchemeType.ApiKey
