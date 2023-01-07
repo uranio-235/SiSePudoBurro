@@ -1,7 +1,4 @@
-﻿using Application.Balances.Jobs;
-using Application.Payments.Command;
-
-using Domain.Abstract.Services;
+﻿using Application.Payments.Commands;
 
 using MediatR;
 
@@ -25,11 +22,11 @@ public class CallbacksController : Controller
     [AllowAnonymous]
     public async Task<ActionResult> QvaPay(string id, string remote_id)
     {
-        var result = await _mediator.Send(new ConfirmQvapay.Command(id, remote_id));
+        var result = await _mediator.Send(new QvapayPaymentGot.Command(id, remote_id));
 
         if (result.IsSuccess)
             return Ok();
-        else 
+        else
             return BadRequest();
 
     } // QvaPay

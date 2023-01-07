@@ -4,6 +4,7 @@ using Domain.Models.QvaPay;
 using Flurl;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using System.Net.Http.Json;
@@ -13,17 +14,20 @@ public class QvapayClient : IQvapayClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<QvapayClient> _logger;
+    private readonly IHostEnvironment _env;
     private readonly QvapayConfig _config;
 
     private const string _urlPrefix = @"https://qvapay.com";
 
     public QvapayClient(
+        IHostEnvironment env, // por el amor de dios, no hagas esto en la vida real
         QvapayConfig config,
         HttpClient httpClient,
         ILogger<QvapayClient> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _env = env;
         _config = config;
     }
 
@@ -40,6 +44,15 @@ public class QvapayClient : IQvapayClient
                 remote_id = remoteId,
                 signed = 0
             });
+
+        if (!_env.IsProduction())
+            return new InvoiceCreated
+            {
+                RemoteId = remoteId,
+                Amount = amount,
+                QvapayId = Guid.NewGuid(),
+                Url = "http://localhost/testing"
+            };
 
         var result = await _httpClient.GetAsync(url.ToString());
 
@@ -64,6 +77,14 @@ public class QvapayClient : IQvapayClient
                 app_secret = _config.ClientSecret
             });
 
+        if (!_env.IsProduction())
+            return new InvoiceGot
+            {
+                Amount = 10,
+                QvapayId = Guid.NewGuid(),
+                Status = "paid"
+            };
+
         var result = await _httpClient.GetAsync(url.ToString());
 
         if (!result.IsSuccessStatusCode)
@@ -85,6 +106,9 @@ public class QvapayClient : IQvapayClient
 
     public async Task<bool> HealthCheck()
     {
+        if (!_env.IsProduction())
+            return true;
+
         var url = _urlPrefix
             .AppendPathSegment($"/api/v1/info")
             .SetQueryParams(new

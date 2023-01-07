@@ -31,6 +31,9 @@ public class WriteDbContext : BaseDbContext, IWriteDbContext
 
     } // method
 
+    public DbSet<User> User { get; set; }
+    public DbSet<Payment> Payment { get; set; }
+    public DbSet<Customer> Customer { get; set; }
 
 } // class
 

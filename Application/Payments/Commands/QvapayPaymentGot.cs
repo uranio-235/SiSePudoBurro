@@ -1,25 +1,24 @@
 ﻿using Application.Balances.Jobs;
 
 using Coravel.Queuing.Interfaces;
-
 using Domain.Abstract.DAL;
 using Domain.Abstract.Services;
-using Domain.Events;
 using Domain.SharedKernel;
-
 using FluentResults;
-
 using FluentValidation;
-
 using MediatR;
-
 using Microsoft.Extensions.Logging;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Application.Payments.Command;
+namespace Application.Payments.Commands;
 
-public class ConfirmQvapay
+public class QvapayPaymentGot
 {
     public record Command(string QvapayId, string RemoteId) : IRequest<Result>;
 
@@ -35,19 +34,20 @@ public class ConfirmQvapay
             RuleFor(t => t.RemoteId)
                 .NotEmpty()
                 .OverridePropertyName("remote_id")
+                .WithErrorCode(HttpStatusCode.NotFound.ToString())
                 .WithMessage("No se recibió la id remote (el md5).");
         }
     }
 
     public class CommandHandler : IRequestHandler<Command, Result>
     {
-        private readonly ILogger<ConfirmQvapay> _logger;
+        private readonly ILogger<QvapayPaymentGot> _logger;
         private readonly IWriteDbContext _dbContext;
         private readonly IQvapayClient _qvapay;
         private readonly IQueue _queue;
 
         public CommandHandler(
-            ILogger<ConfirmQvapay> logger,
+            ILogger<QvapayPaymentGot> logger,
             IWriteDbContext dbContext,
             IQvapayClient qvapay,
             IQueue queue)
@@ -60,6 +60,8 @@ public class ConfirmQvapay
 
         public async Task<Result> Handle(Command request, CancellationToken cancellationToken)
         {
+            var transaction = await _dbContext.BeginTransactionAsync();
+
             var payment = _dbContext.Payment
                 .Where(p => p.Status == PaymentStatus.Requested)
                 .SingleOrDefault(p => p.ExternalIdentification == request.RemoteId);
@@ -95,19 +97,21 @@ public class ConfirmQvapay
                     HttpStatusCode.BadRequest);
             }
 
-            payment.FinalOutstandingAmount = invoice.Amount;
+            payment.ExecutedAmount = invoice.Amount;
+            
             _dbContext.Payment.Update(payment);
             await _dbContext.SaveChangesAsync();
 
+            await transaction.CommitAsync();
+
             _logger.LogInformation(
                 "procesando pago {externalId} con un monto de {finalAmount}",
-                payment.ExternalIdentification, payment.FinalOutstandingAmount);
+                payment.ExternalIdentification, payment.ExecutedAmount);
 
             // mándalo a actualizar el balance
-            _queue.QueueInvocableWithPayload<UpdateBalance, PaymentReceived>(new PaymentReceived
+            _queue.QueueInvocableWithPayload<UpdateCustomer, UpdateCustomer.Data>(new UpdateCustomer.Data
             {
-                Amount = invoice.Amount,
-                PaymentId = payment.Id
+                UserId = payment.UserId
             });
 
             return Result.Ok();
@@ -115,4 +119,3 @@ public class ConfirmQvapay
     }
 
 } // main class 
-

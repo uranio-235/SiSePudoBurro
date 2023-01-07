@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace View.Api.V1;
 
+[Authorize]
 [ApiController]
 [Route("v1/balance")]
 public class BalanceController : Controller
@@ -19,7 +20,6 @@ public class BalanceController : Controller
         _mediator = mediator;
     }
 
-    [Authorize]
     [HttpGet("{UserId}")]
     public async Task<IActionResult> GetUserBalace(Guid UserId)
     {

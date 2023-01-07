@@ -9,4 +9,8 @@
     <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Impl\Services\" />
+  </ItemGroup>
+
 </Project>

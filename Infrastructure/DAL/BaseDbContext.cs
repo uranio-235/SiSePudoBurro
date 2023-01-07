@@ -9,9 +9,6 @@ public abstract class BaseDbContext : DbContext, IBaseDbContext
     public BaseDbContext(DbContextOptions<ReadDbContext> options) : base(options) { }
     public BaseDbContext(DbContextOptions<WriteDbContext> options) : base(options) { }
 
-    public DbSet<Customer> Customer { get; set; }
-    public DbSet<Balance> Balance { get; set; }
-    public DbSet<Payment> Payment { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,9 +16,17 @@ public abstract class BaseDbContext : DbContext, IBaseDbContext
             .HasPostgresExtension("uuid-ossp");
 
         modelBuilder
-            .Entity<Customer>()
+            .Entity<User>()
             .HasIndex(u => u.TelegramId)
             .IsUnique();
+
+        // https://devblogs.microsoft.com/dotnet/announcing-ef7-release-candidate-2/
+        modelBuilder.Entity<Customer>().OwnsOne(
+            cs => cs.View, builder =>
+            {
+                builder.ToJson();
+                //builder.OwnsOne(contactDetails => contactDetails.Address);
+            });
 
     } // OnModelCreating
 

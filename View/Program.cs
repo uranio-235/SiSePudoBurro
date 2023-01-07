@@ -82,9 +82,6 @@ public class Program
         builder.Services.AddCache();
         builder.Services.AddQueue();
 
-        // el sistema que notifica
-        //builder.Services.AddTransient<ExceptionFilter>();
-
         // añade la capa de datos
         builder.Services.AddDataLayer();
 

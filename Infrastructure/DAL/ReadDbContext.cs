@@ -1,4 +1,5 @@
 ﻿using Domain.Abstract.DAL;
+using Domain.Entitities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -12,4 +13,5 @@ public class ReadDbContext : BaseDbContext, IReadDbContext
         ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 
+    public DbSet<Customer> Customer { get; set; }
 }

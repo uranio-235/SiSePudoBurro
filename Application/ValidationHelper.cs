@@ -1,10 +1,15 @@
-﻿using FluentValidation;
+﻿using Domain.Abstract.DAL;
+
+using FluentValidation;
 using FluentValidation.Results;
 
+using MediatR;
+
 using System.Net;
+using System.Text;
 
 namespace Application;
-public struct ValidationHelper
+public static class ValidationHelper
 {
     /// <summary>
     /// Crear una exception de validación con el error y código http dado.
@@ -25,5 +30,14 @@ public struct ValidationHelper
         };
 
         return new ValidationException(errors);
+
     }
+
+    public static IRuleBuilderOptions<T, Guid> MustBeValidUser<T>(
+    this IRuleBuilder<T, Guid> ruleBuilder, IReadDbContext dbContext)
+        => ruleBuilder
+                .Must(uid => dbContext.Customer.Any(c => c.UserId == uid))
+                .WithErrorCode(HttpStatusCode.NotFound.ToString())
+                .WithMessage("There is not such user");
+
 }
