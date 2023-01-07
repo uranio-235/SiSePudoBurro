@@ -1,5 +1,4 @@
-﻿using Application.Balances.Queries;
-using Application.Customers.Commands;
+﻿using Application.Customers.Commands;
 using Application.Customers.Queries;
 
 using MediatR;
@@ -18,12 +17,12 @@ public class CustomerController : Controller
     private readonly IMediator _mediator;
 
     public CustomerController(IMediator mediator)
-	{
+    {
         _mediator = mediator;
     }
 
     [HttpGet]
-    public async Task<IActionResult> ListAll() 
+    public async Task<IActionResult> ListAll()
         => Ok(await _mediator.Send(new ListAllCustomers.Query()));
 
     [HttpGet("{userId}")]

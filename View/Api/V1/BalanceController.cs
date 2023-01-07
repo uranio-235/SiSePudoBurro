@@ -28,7 +28,7 @@ public class BalanceController : Controller
     [HttpPost("{UserId}")]
     public async Task<IActionResult> RequestPaymentByUserId(
         [FromBody] RequestPayment.Command command,
-        Guid UserId) 
+        Guid UserId)
         => Ok(await _mediator.Send(command with { UserId = UserId }));
 
 }

@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 using Newtonsoft.Json;
 
-using System.Diagnostics;
-
 namespace View.Middlewares;
 
 public class ResultFilter : IAsyncResultFilter

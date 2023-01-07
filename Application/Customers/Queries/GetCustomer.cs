@@ -4,17 +4,9 @@ using Domain.Abstract.DAL;
 
 using FluentResults;
 
-using FluentValidation;
-
 using MediatR;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Application.Customers.Queries;
 
@@ -42,7 +34,9 @@ public class GetCustomer
                     TelegramId = c.View.TelegramId,
                     TotalTransactions = c.View.TotalTransactions,
                     UserId = c.UserId,
-                    Username = c.View.Username
+                    Username = c.View.Username,
+                    CreatedAt = c.CreatedAt,
+                    ModifiedAt = c.ModifiedAt
                 })
                 .SingleOrDefault(c => c.UserId == request.UserId);
 

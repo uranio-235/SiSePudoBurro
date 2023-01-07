@@ -1,5 +1,4 @@
 ﻿using Domain.Abstract.DAL;
-using Domain.SharedKernel;
 
 using FluentResults;
 

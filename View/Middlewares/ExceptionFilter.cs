@@ -65,7 +65,7 @@ public class ExceptionFilter : ExceptionFilterAttribute
         if (error is null)
         {
             exceptions?
-                .Select((e,n) => new {e.Message, Index=n })
+                .Select((e, n) => new { e.Message, Index = n })
                 .ToList()
                 .ForEach(e => _logger.LogError("{Index} {Message}", e.Message, e.Index));
 

@@ -27,8 +27,6 @@ using View.Middlewares;
 
 namespace View;
 
-// https://learn.microsoft.com/en-us/aspnet/core/tutorials/min-web-api?view=aspnetcore-6.0&tabs=visual-studio
-
 public class Program
 {
     public static void Main(string[] args)
@@ -61,9 +59,7 @@ public class Program
         // volvieron a joder el swagger
         // esta pinga hay que ponerla para pder poner Command y Query como [FromBody] repetido
         builder.Services.AddSwaggerGen(o =>
-        {
-            o.CustomSchemaIds(s => s!.FullName!.Replace("+", "."));
-        });
+            o.CustomSchemaIds(s => s!.FullName!.Replace("+", ".")));
 
         // Microsoft.AspNetCore.Mvc.NewtonsoftJson
         builder.Services
@@ -82,8 +78,10 @@ public class Program
             .AddHealthChecks()
             .AddCheck<IQvapayClient>("qvapay health check");
 
+        // monta que te queda
         builder.Services.AddMassTransit(x =>
         {
+            // la brujería que carga todo los consumer
             AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
                 .Where(p => typeof(IConsumer).IsAssignableFrom(p) && p.IsClass && !p.FullName.StartsWith("MassTransit."))
@@ -101,6 +99,7 @@ public class Program
         // añade la capa de datos
         builder.Services.AddDataLayer();
 
+        // el swagger muy de pinga con autenticación x-api-key sata
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment API", Version = "v1" });
@@ -131,8 +130,8 @@ public class Program
 
         });
 
+        // el engendro para que swagger autentique
         builder.Services.AddTransient<ApiKeyProvider>();
-
         builder.Services
             .AddAuthentication(ApiKeyDefaults.AuthenticationScheme)
             .AddApiKeyInHeaderOrQueryParams<ApiKeyProvider>(options =>
@@ -159,8 +158,6 @@ public class Program
         app.UseEndpoints(endpoints => endpoints.MapHealthChecks("/health"));
         app.UseEndpoints(endpoints => endpoints.MapControllers());
 
-
-
-        app.Run();
+        app.Run(); // me fui
     }
 }

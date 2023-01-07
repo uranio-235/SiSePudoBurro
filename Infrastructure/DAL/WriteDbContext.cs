@@ -19,6 +19,8 @@ public class WriteDbContext : BaseDbContext, IWriteDbContext
     {
         var now = DateTime.UtcNow;
 
+        // la brujería que actualiza las fechas de creación y modificación
+
         ChangeTracker.Entries<BaseEntity>()
             .Where(entity => entity.State == EntityState.Added)
             .ToList().ForEach(item => item.Entity.CreatedAt = item.Entity.ModifiedAt = now);

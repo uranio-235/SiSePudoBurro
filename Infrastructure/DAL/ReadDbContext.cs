@@ -10,6 +10,7 @@ public class ReadDbContext : BaseDbContext, IReadDbContext
 
     public ReadDbContext(DbContextOptions<ReadDbContext> options) : base(options)
     {
+        // el dbcontext de lectura siempre hace las consultas as no tracking
         ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
     }
 

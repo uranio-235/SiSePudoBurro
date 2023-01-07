@@ -9,4 +9,7 @@ public class Customer
     public string TelegramId { get; set; }
 
     public long TotalTransactions { get; set; } = 0;
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime ModifiedAt { get; set; }
 }

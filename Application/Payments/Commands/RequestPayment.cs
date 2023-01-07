@@ -12,10 +12,10 @@ using MassTransit;
 
 using MediatR;
 
-using Newtonsoft.Json;
 
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Application.Payments.Commands;
 
@@ -30,6 +30,7 @@ public class RequestPayment
 
         [JsonIgnore]
         public Guid UserId { get; set; }
+
         public decimal Amount { get; set; }
         public string Description { get; set; } = string.Empty;
     }
@@ -40,6 +41,9 @@ public class RequestPayment
         {
             RuleFor(c => c.UserId)
                 .MustBeValidUser(dbContext);
+
+            RuleFor(c => c.Amount)
+                .GreaterThan(0);
         }
     }
 

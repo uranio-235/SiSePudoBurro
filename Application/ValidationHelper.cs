@@ -3,10 +3,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 
-using MediatR;
-
 using System.Net;
-using System.Text;
 
 namespace Application;
 public static class ValidationHelper

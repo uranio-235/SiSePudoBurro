@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Domain.Abstract.DAL;
+
 public interface IReadDbContext : IBaseDbContext
 {
     /// <summary>
@@ -10,5 +11,5 @@ public interface IReadDbContext : IBaseDbContext
     /// </summary>
     bool IsOnline { get; }
 
-    DbSet<Customer> Customer { get; set; } 
+    DbSet<Customer> Customer { get; set; }
 }
