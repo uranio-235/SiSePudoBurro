@@ -29,3 +29,5 @@ Remove-Migration -Context WriteDbContext
 Se demora en levantar cuando arranca. Tiene que crear e inicializar la base de datos.
 
 Postgres no va pinchar hasta que no quede alineada la api de json column con Entity framework. La capa de datos está ahí para ilustrar como convertir la DATABASE_URL en una connection string.
+
+Si quieres saber como se hace con la API de Npgsql, míralo aquí: https://www.npgsql.org/efcore/mapping/json.html?tabs=data-annotations%2Cpoco
