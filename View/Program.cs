@@ -100,13 +100,13 @@ public class Program
         // a�ade la capa de datos
         builder.Services.AddDataLayer(InMemoryDatabaseRoot);
 
-        // el swagger muy de pinga con autenticaci�n x-api-key sata
+        // el swagger muy de pinga con autenticacion x-api-key es "ok"
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "Payment API", Version = "v1" });
             c.AddSecurityDefinition("X-API-KEY", new OpenApiSecurityScheme()
             {
-                Description = "El token de autenticaci�n.",
+                Description = "El token de autenticacion.",
                 In = ParameterLocation.Header,
                 Name = "X-API-KEY",
                 Type = SecuritySchemeType.ApiKey

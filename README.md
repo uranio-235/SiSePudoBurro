@@ -7,7 +7,6 @@ ok
 ### Ay pero como hago migraciones?
 
 $env:DATABASE_URL="postgres://uvufuefue:enetwetwetweufuemufem@osas.db.aws.com/hollysheet"
-Get-DbContext
 
 ```powershell
 # crear una nueva migración
