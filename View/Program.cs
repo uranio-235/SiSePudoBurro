@@ -13,6 +13,7 @@ using Infrastructure.Impl.Services;
 using MassTransit;
 
 using MediatR;
+
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.OpenApi.Models;
 
@@ -29,7 +30,7 @@ namespace View;
 
 public class Program
 {
-    public static readonly InMemoryDatabaseRoot InMemoryDatabaseRoot = new InMemoryDatabaseRoot();
+    public static readonly InMemoryDatabaseRoot InMemoryDatabaseRoot = new();
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
