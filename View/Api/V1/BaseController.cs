@@ -2,6 +2,8 @@
 
 using Microsoft.AspNetCore.Mvc;
 
+using System.Collections.Immutable;
+
 namespace View.Api.V1;
 
 public abstract class BaseController : ControllerBase
@@ -16,7 +18,7 @@ public abstract class BaseController : ControllerBase
 
         var dict = keys
             .Zip(values, (k, v) => new KeyValuePair<string, int>(k, v))
-            .ToDictionary();
+            .ToImmutableArray();
 
         return new OkObjectResult(dict);
     }
