@@ -9,7 +9,7 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Devuelve un enum contenido de un select. Cosas de frontend.
     /// </summary>
-    public OkObjectResult ResponseWithEnum<TEnum>(TEnum data) where TEnum : Enum
+    internal OkObjectResult ResponseWithEnum<TEnum>(TEnum data) where TEnum : Enum
     {
         var keys = Enum.GetValues(data.GetType()).OfType<TEnum>().Select(e => e.ToString());
         var values = Enum.GetValuesAsUnderlyingType(data.GetType()).OfType<int>();
@@ -29,7 +29,7 @@ public abstract class BaseController : ControllerBase
     /// <param name="statusCode">si deseas dar un status code diferente</param>
     /// <returns>Un BadRequest listo para estampárselo a asp.net en toda su cara.</returns>
     /// <exception cref="ArgumentException">Si no se respeta el orden de los errores.</exception>
-    public ObjectResult ResponseWithBadRequest(Result result, int statusCode = StatusCodes.Status400BadRequest)
+    internal ObjectResult ResponseWithBadRequest(Result result, int statusCode = StatusCodes.Status400BadRequest)
     {
         if (result is { IsSuccess: true })
             throw new ArgumentException("Result no parece un error.");
@@ -62,6 +62,6 @@ public abstract class BaseController : ControllerBase
     }
 
     /// <inheritdoc cref="ResponseWithBadRequest(Result, int)"/>
-    public ObjectResult ResponseWithBadRequest<T>(Result<T> result, int statusCode = StatusCodes.Status400BadRequest)
+    internal ObjectResult ResponseWithBadRequest<T>(Result<T> result, int statusCode = StatusCodes.Status400BadRequest)
         => ResponseWithBadRequest(result, statusCode);
 }
