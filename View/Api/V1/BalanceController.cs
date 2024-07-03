@@ -12,7 +12,7 @@ namespace View.Api.V1;
 [Authorize]
 [ApiController]
 [Route("v1/balance")]
-public class BalanceController : Controller
+public class BalanceController : BaseController
 {
     private readonly IMediator _mediator;
 

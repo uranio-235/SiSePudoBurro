@@ -9,7 +9,7 @@ namespace View.Api.V1;
 
 [ApiController]
 [Route("v1/callback")]
-public class CallbacksController : Controller
+public class CallbacksController : BaseController
 {
     private readonly IMediator _mediator;
 
