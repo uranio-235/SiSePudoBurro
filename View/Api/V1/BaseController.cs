@@ -13,12 +13,11 @@ public abstract class BaseController : ControllerBase
     /// </summary>
     internal OkObjectResult ResponseWithEnum<TEnum>(TEnum data) where TEnum : Enum
     {
-        var keys = Enum.GetValues(data.GetType()).OfType<TEnum>().Select(e => e.ToString());
+        var keys = Enum.GetValues(data.GetType()).OfType<TEnum>().Select(e => e.GetStringValue() ?? e.ToString());
         var values = Enum.GetValuesAsUnderlyingType(data.GetType()).OfType<int>();
 
         var dict = keys
-            .Zip(values, (k, v) => new KeyValuePair<string, int>(k, v))
-            .ToImmutableArray();
+            .Zip(values, (k, v) => new KeyValuePair<string, int>(k, v));
 
         return new OkObjectResult(dict);
     }
@@ -65,5 +64,5 @@ public abstract class BaseController : ControllerBase
 
     /// <inheritdoc cref="ResponseWithBadRequest(Result, int)"/>
     internal ObjectResult ResponseWithBadRequest<T>(Result<T> result, int statusCode = StatusCodes.Status400BadRequest)
-        => ResponseWithBadRequest(result, statusCode);
+        => ResponseWithBadRequest(Result.Fail(result.Errors), statusCode);
 }
